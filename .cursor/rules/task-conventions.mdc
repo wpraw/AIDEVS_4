@@ -1,0 +1,56 @@
+---
+description: Conventions for individual task scripts (zadania/weekX/dayY/index.ts)
+globs: zadania/**/*.ts
+alwaysApply: false
+---
+
+# Konwencje skryptów zadań
+
+## Struktura `index.ts`
+
+```typescript
+import { createOpenRouterClient, chat, braveVerify, logger } from "@lib/index.js"
+
+const client = createOpenRouterClient()
+
+async function main() {
+  const answer = await chat(client, [
+    { role: "system", content: "instrukcja systemowa" },
+    { role: "user", content: "pytanie" },
+  ])
+
+  const result = await braveVerify({ task: "nazwa-zadania", answer })
+  logger.info("Flag:", result)
+}
+
+main()
+```
+
+## Structured output (LLM)
+
+Użyj `chatJson<T>()` gdy odpowiedź modelu musi być JSON:
+
+```typescript
+const data = await chatJson<{ tags: string[] }>(client, messages)
+```
+
+SDK obsługuje `responseFormat: { type: "json_object" }` automatycznie w `chatJson`.
+
+## Dane wejściowe
+
+Duże pliki (CSV, JSON) trzymaj w katalogu `data/` obok `index.ts`. Nie commituj wrażliwych danych.
+
+## Obsługa błędów
+
+```typescript
+// ❌ ZŁE
+try { await fetch(...) } catch (e) {}
+
+// ✅ DOBRE
+try {
+  await fetch(...)
+} catch (e) {
+  logger.error("Opis kontekstu błędu", { error: e })
+  throw e
+}
+```

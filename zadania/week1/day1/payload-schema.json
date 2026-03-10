@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "apikey": {
+      "type": "string",
+      "description": "Klucz API z hub.ag3nts.org"
+    },
+    "task": {
+      "type": "string",
+      "const": "people",
+      "description": "Nazwa zadania"
+    },
+    "answer": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "surname": { "type": "string" },
+          "gender": {
+            "type": "string",
+            "enum": ["M", "F"]
+          },
+          "born": {
+            "type": "integer",
+            "description": "Rok urodzenia"
+          },
+          "city": { "type": "string" },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["name", "surname", "gender", "born", "city", "tags"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["apikey", "task", "answer"],
+  "additionalProperties": false
+}

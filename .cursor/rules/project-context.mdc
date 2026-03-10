@@ -1,0 +1,57 @@
+---
+description: Project context for AI DEVS (Brave course) — structure, stack, conventions
+alwaysApply: true
+---
+
+# AI DEVS — Kurs Brave
+
+Repozytorium z zadaniami kursu AI DEVS prowadzonego przez Brave. Zadania podzielone są na tygodnie i dni.
+
+## Struktura katalogów
+
+```
+lib/                  # wspólna biblioteka (env, logger, openrouter, brave)
+zadania/
+  weekX/
+    dayY/
+      index.ts        # główny skrypt rozwiązania
+      Zadanie.md      # treść i wskazówki do zadania
+      data/           # pliki wejściowe (CSV, JSON, itp.)
+```
+
+## Zmienne środowiskowe (`.env`)
+
+- `BRAVE_API_KEY` — klucz do autoryzacji requestów do endpointów Brave (`https://hub.ag3nts.org/verify`)
+- `OPENROUTER_API_KEY` — klucz do OpenRouter (`@openrouter/sdk`)
+
+## Stack
+
+- **TypeScript + Node.js**, pnpm (flat, bez monorepo)
+- **`@openrouter/sdk`** — wywoływanie modeli LLM (głównie open-source przez OpenRouter)
+- **`axios`** — HTTP requests
+- **`dotenv`** — ładowanie zmiennych z `.env`
+
+## Wspólna biblioteka (`lib/`)
+
+Importowana przez zadania jako `../../lib/index.js` (relatywny import). Zawiera:
+- `env.ts` — ładowanie `.env`, helpery `BRAVE_API_KEY()`, `OPENROUTER_API_KEY()`
+- `logger.ts` — logger z poziomami debug/info/warn/error
+- `openrouter.ts` — `createOpenRouterClient()`, `chat()`, `chatJson<T>()`
+- `brave.ts` — `braveVerify()`, `braveDataUrl()`
+
+## Typowy przepływ zadania
+
+1. Pobierz dane z `https://hub.ag3nts.org/data/{BRAVE_API_KEY}/...`
+2. Przetwórz dane (filtrowanie, transformacja)
+3. Wywołaj LLM przez OpenRouter (structured output tam gdzie potrzeba)
+4. Wyślij odpowiedź na `https://hub.ag3nts.org/verify`:
+   ```json
+   { "apikey": "<BRAVE_API_KEY>", "task": "<nazwa>", "answer": <wynik> }
+   ```
+5. Z prawidłowej odpowiedzi o statusie 0 wyciągnij flagę w formacie `{FLG:SLOWO}` i wpisz na `https://hub.ag3nts.org/`
+
+## Konwencje
+
+- Prettier defaults, bez zbędnych typów zwracanych (lean on inference)
+- Każde zadanie jest samodzielne — `index.ts` to punkt wejścia
+- Uruchamianie zadania: `npx tsx zadania/weekX/dayY/index.ts`
